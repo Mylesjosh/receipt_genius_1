@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "219034345526",
+    "project_id": "receipt-genius",
+    "storage_bucket": "receipt-genius.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:219034345526:android:ad3083d8cde2b661d83897",
+        "android_client_info": {
+          "package_name": "com.example.receipt_genius"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2n76lLzZ6V6ar9X6_1_udXE2EEOIpFq8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
