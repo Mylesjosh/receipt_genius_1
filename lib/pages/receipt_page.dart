@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,7 +31,7 @@ class ReceiptPage extends StatefulWidget {
 class _ReceiptPageState extends State<ReceiptPage> {
   List<TextEditingController> itemControllers = [];
   List<TextEditingController> priceControllers = [];
-  TextEditingController receiptnameController = TextEditingController();
+  TextEditingController receiptemailController = TextEditingController();
   int fieldCount = 0; // Start with two sets of text fields
   final List<String> savedReceipts = []; // To store saved PDF paths
   final GlobalKey<SignatureState> _businessOwnerSignKey = GlobalKey();
@@ -41,7 +42,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
       // Show progress indicator while logging in
       showDialog(
         context: context,
-        barrierDismissible: false, // Prevent dialog from being dismissed
+        barrierDismissible: true, // Prevent dialog from being dismissed
         builder: (context) {
           return Center(
             child: CircularProgressIndicator(),
@@ -175,6 +176,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
             Navigator.of(context).pop();
             print("Receipt saved as $pdfPath");
 
+            sendReceiptEmail(pdfPath);
+
             showDialog(
               context: context,
               builder: (context) {
@@ -232,6 +235,27 @@ class _ReceiptPageState extends State<ReceiptPage> {
       print("Failed to add data to collection $collectionName: $error");
     });
   }
+
+  Future<void> sendReceiptEmail(String receiptPath) async {
+    final Email email = Email(
+      body: 'Here is your receipt.',
+      subject: ' Receipt Genius ',
+      recipients: [receiptemailController.text.toString()], // Replace with the customer's email
+      attachmentPaths: [receiptPath],
+      isHTML: false,
+    );
+
+    try {
+      await FlutterEmailSender.send(email);
+    } catch (e) {
+      if ((e as PlatformException).code == 'not_available') {
+        print('No email clients found. Please install an email client.');
+        // Optionally, show a dialog or a message to the user
+      }
+    }
+
+  }
+
 
   Future<void> loadReceipts() async {
     try {
@@ -310,8 +334,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
           children: [Column(
             children: [
               TextField(
-                controller: receiptnameController,
-                decoration: InputDecoration(labelText: "Receipt's Owner name"),
+                controller: receiptemailController,
+                decoration: InputDecoration(labelText: "Receipt's Owner Email"),
               ),
               for (int i = 0; i < fieldCount; i++)
                 Column(
